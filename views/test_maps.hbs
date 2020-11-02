@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Context Menu for Map and Graphics</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.34/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/3.34/esri/css/esri.css">
+    <script src="https://js.arcgis.com/3.34/"></script>
+    <script>
+      var map, editToolbar, ctxMenuForGraphics, ctxMenuForMap;
+      var selected, currentLocation;
+      
+      require([
+        "esri/map", "esri/geometry/Point", "esri/geometry/Polygon", 
+        "esri/layers/FeatureLayer",
+        "esri/toolbars/draw", "esri/toolbars/edit",
+        "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
+        "esri/symbols/SimpleFillSymbol",
+        "esri/graphic", "esri/geometry/jsonUtils",
+        "esri/Color", "dojo/parser",
+        "dijit/Menu", "dijit/MenuItem", "dijit/MenuSeparator","esri/dijit/PopupTemplate",
+        
+        "dijit/form/Button", "dijit/layout/BorderContainer", "dijit/layout/ContentPane", 
+        "dojo/domReady!"
+      ], function(
+        Map, Point, Polygon, 
+        FeatureLayer,
+        Draw, Edit,
+        SimpleMarkerSymbol, SimpleLineSymbol, 
+        SimpleFillSymbol,
+        Graphic, geometryJsonUtils,
+        Color, parser,
+        Menu, MenuItem, MenuSeparator, PopupTemplate
+      ) {
+        parser.parse();
+        var featureLayer;
+
+        map = new Map("map", {
+          basemap: "topo-vector",
+          center: ["106.816666", "-6.200000"],
+          zoom: 10
+        });
+        map.on("load", writeDataKapal);
+
+        var popupTemplate = new PopupTemplate({
+          title: "{title}",
+          description: "{description}"
+        });
+
+        var featureCollection = {
+          "layerDefinition": null,
+          "featureSet": {
+            "features": [],
+            "geometryType": "esriGeometryPoint"
+          }
+        };
+
+        featureCollection.layerDefinition = {
+          "geometryType": "esriGeometryPoint",
+          "objectIdField": "ObjectID",
+          "drawingInfo": {
+            "renderer": {
+              "type": "simple",
+              "symbol": {
+                "type": "esriPMS",
+                "url": "images/flickr.png",
+                "contentType": "image/png",
+                "width": 15,
+                "height": 15
+              }
+            }
+          },
+          "fields": [{
+            "name": "ObjectID",
+            "alias": "ObjectID",
+            "type": "esriFieldTypeOID"
+          }, {
+            "name": "description",
+            "alias": "Description",
+            "type": "esriFieldTypeString"
+          }, {
+            "name": "title",
+            "alias": "Title",
+            "type": "esriFieldTypeString"
+          }]
+        };
+
+        featureLayer = new FeatureLayer(featureCollection, {
+          id: 'kapallayer',
+          infoTemplate: popupTemplate
+        });
+
+        featureLayer.on("click", function(evt) {
+          map.infoWindow.setFeatures([evt.graphic]);
+        });
+
+         map.on("layers-add-result", function(results) {
+          writeDataKapal();
+        });
+        //add the feature layer that contains the flickr photos to the map
+        map.addLayers([featureLayer]);
+
+        function writeDataKapal(){
+          $.ajax({
+            url: 'http://localhost:8000/getDataKapal',
+            type: 'GET',
+            timeout: 60000,
+            contentType: "application/json",
+            success: function (data) {
+              var features = [];
+              for(var i = 0; i < data.length; i++){
+                var attr = {};
+                attr["description"] = 'Asal Negara : ' +data[i]['bendera_kapal'] 
+                                    + '<br>Jenis Kapal :' +data[i]['jenis_kapal']
+                                    + '<br>IMO/MSSI :' +data[i]['imo_mssi']
+                                    + '<br>Arah Kapal :' +data[i]['arah_kapal']+'°'
+                                    + '<br>Kecepatan Kapal :' +data[i]['kecepatan_kapal']
+                                    + '<br>Tujuan : ' +data[i]['tujuan']
+                                    + '<br>'+data[i]['kordinat_laut']
+                                    + '<br> Merk mesin : '+data[i]['merk_mesin']
+                                    + '<br> Daya mesin : '+data[i]['daya'];
+                attr["title"] = 'Data Kapal ' + data[i]['vessel_name'];
+
+                var point = new esri.geometry.Point(data[i]['last_latitude'], data[i]['last_longitude']);
+                point = esri.geometry.geographicToWebMercator(point);
+                var symbol = new esri.symbol.PictureMarkerSymbol("static/image/"+data[i]['icon_kapal']+".png", 20, 20);
+                symbol.setAngle(data[i]['last_heading']);
+                // var symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 10);
+                var graphic = new esri.Graphic(point, symbol);
+                graphic.setAttributes(attr);
+                // var layer = new esri.layers.GraphicsLayer();
+                // layer.add(graphic);
+                // map.addLayer(layer);
+                features.push(graphic);
+              }
+
+              featureLayer.applyEdits(features, null, null);
+            }
+          });
+      }
+    });
+    </script>
+  </head>
+  <body class="claro" style="font-size: 0.75em;">
+    <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'" ></div>
+    <!-- <img src="static/image/ship-red.png" alt=""> -->
+  </body>
+</html>

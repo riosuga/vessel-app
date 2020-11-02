@@ -1,0 +1,282 @@
+<script type ="module">
+	var map, editToolbar, ctxMenuForGraphics, ctxMenuForMap;
+	var selected, currentLocation;
+
+	dojoConfig: {
+		aliases: [ 
+		['jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js' ]
+		] 
+	} 
+
+	require([
+		"esri/map", "esri/geometry/Point", "esri/geometry/Polygon", 
+		"esri/layers/FeatureLayer",
+		"esri/toolbars/draw", "esri/toolbars/edit",
+		"esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
+		"esri/symbols/SimpleFillSymbol",
+		"esri/graphic", "esri/geometry/jsonUtils",
+		"esri/Color", "dojo/parser",
+		"dijit/Menu", "dijit/MenuItem", "dijit/MenuSeparator","esri/dijit/PopupTemplate",
+
+		"dijit/form/Button", "dijit/layout/BorderContainer", "dijit/layout/ContentPane", 
+		"dojo/domReady!"
+		], function(
+			Map, Point, Polygon, 
+			FeatureLayer,
+			Draw, Edit,
+			SimpleMarkerSymbol, SimpleLineSymbol, 
+			SimpleFillSymbol,
+			Graphic, geometryJsonUtils,
+			Color, parser,
+			Menu, MenuItem, MenuSeparator, PopupTemplate
+			) {
+			parser.parse();
+			var featureLayer;
+
+			map = new Map("map", {
+				basemap: "topo-vector",
+				center: ["106.816666", "-6.200000"],
+				zoom: 10
+			});
+			map.on("load", writeDataKapal);
+
+			var popupTemplate = new PopupTemplate({
+				title: "{title}",
+				description: "{description}"
+			});
+
+			var featureCollection = {
+				"layerDefinition": null,
+				"featureSet": {
+					"features": [],
+					"geometryType": "esriGeometryPoint"
+				}
+			};
+
+			featureCollection.layerDefinition = {
+				"geometryType": "esriGeometryPoint",
+				"objectIdField": "ObjectID",
+				"drawingInfo": {
+					"renderer": {
+						"type": "simple",
+						"symbol": {
+							"type": "esriPMS",
+							"url": "images/flickr.png",
+							"contentType": "image/png",
+							"width": 15,
+							"height": 15
+						}
+					}
+				},
+				"fields": [{
+					"name": "ObjectID",
+					"alias": "ObjectID",
+					"type": "esriFieldTypeOID"
+				}, {
+					"name": "description",
+					"alias": "Description",
+					"type": "esriFieldTypeString"
+				}, {
+					"name": "title",
+					"alias": "Title",
+					"type": "esriFieldTypeString"
+				}]
+			};
+
+			featureLayer = new FeatureLayer(featureCollection, {
+				id: 'kapallayer',
+				infoTemplate: popupTemplate
+			});
+
+			featureLayer.on("click", function(evt) {
+				map.infoWindow.setFeatures([evt.graphic]);
+			});
+
+			map.on("layers-add-result", function(results) {
+				writeDataKapal();
+			});
+
+        //add the feature layer that contains the flickr photos to the map
+        map.addLayers([featureLayer]);
+        map.disableDoubleClickZoom();
+
+        function writeDataKapal(){
+        	$.ajax({
+	        		url: 'http://localhost:8000/getDataKapal',
+	        		type: 'GET',
+	        		timeout: 60000,
+	        		contentType: "application/json",
+	        		success: function (data) {
+	        			var features = [];
+	        			for(var i = 0; i < data.length; i++){
+	        				var attr = {};
+	        				attr["description"] = 'Asal Negara : ' +data[i]['bendera_kapal'] 
+	        				+ '<br>Jenis Kapal :' +data[i]['jenis_kapal']
+	        				+ '<br>IMO/MSSI :' +data[i]['imo_mssi']
+	        				+ '<br>Arah Kapal :' +data[i]['arah_kapal']+'°'
+	        				+ '<br>Kecepatan Kapal :' +data[i]['kecepatan_kapal']
+	        				+ '<br>Tujuan : ' + data[i]['tujuan']
+	        				+ '<br>Koordinat Laut : '+data[i]['koordinat_laut']
+	        				+ '<br> Merk mesin : '+data[i]['merk_mesin']
+	        				+ '<br> Daya mesin : '+data[i]['daya'];
+	        				attr["title"] = 'Data Kapal ' + data[i]['vessel_name'];
+
+	        				var point = new esri.geometry.Point(data[i]['last_latitude'], data[i]['last_longitude']);
+	        				point = esri.geometry.geographicToWebMercator(point);
+	        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/"+data[i]['icon_kapal']+".png", 20, 20);
+	        				symbol.setAngle(data[i]['last_heading']);
+			                var graphic = new esri.Graphic(point, symbol);
+			                graphic.setAttributes(attr);
+			                features.push(graphic);
+			            }
+
+			            featureLayer.applyEdits(features, null, null);
+			        }
+			    });
+
+        	$.ajax({
+        		url: 'http://localhost:8000/getPelabuhan',
+        		type: 'GET',
+        		timeout: 60000,
+        		contentType: "application/json",
+        		success: function (data) {
+        			var features = [];
+        			for(var i = 0; i < data.length; i++){
+        				var attr = {};
+        				attr["title"] = 'Data Pelabuhan ' + data[i]['nama_pelabuhan'];
+        				attr["description"] = 'Kode Pelabuhan : ' +data[i]['kd_pelabuhan'] 
+        									+ '<br>Nama Kabupaten/Kota : ' +data[i]['nama_kabkota']; 
+        				var point = new esri.geometry.Point(data[i]['latitude'], data[i]['longitude']);
+        				point = esri.geometry.geographicToWebMercator(point);
+        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/port.png", 20, 20);
+		                var graphic = new esri.Graphic(point, symbol);
+		                graphic.setAttributes(attr);
+		                features.push(graphic);
+		            }
+		            featureLayer.applyEdits(features, null, null);
+		        }
+		    });
+        }
+
+
+        $('#search_kapal').click(function (){
+        	var search = $('#pelabuhan').val();
+        	if(search.trim() != ""){
+        		$.ajax({
+        			url: 'http://localhost:8000/getKapalByNearPelabuhan',
+	        		type: 'POST',
+	        		timeout: 60000,
+	        		contentType: "application/json; charset=utf-8",
+	        		dataType: "json",
+	        		data : JSON.stringify({port : search}),
+        			success: function (data) {
+        				var features = [];
+        				featureLayer.clear();
+	        			for(var i = 0; i < data.length; i++){
+	        				var attr = {};
+							// var jarak = String(data[i]['jarak_pelabuhan_last']);
+							// jarak = jarak.split('.');
+
+	        				attr["description"] = 'Asal Negara : ' +data[i]['bendera_kapal'] 
+	        				+ '<br>Jenis Kapal :' +data[i]['jenis_kapal']
+	        				+ '<br>IMO/MSSI :' +data[i]['imo_mssi']
+	        				+ '<br>Arah Kapal :' +data[i]['arah_kapal']+'°'
+	        				+ '<br>Kecepatan Kapal :' +data[i]['kecepatan_kapal']
+	        				+ '<br>Tujuan : ' + data[i]['tujuan']
+	        				+ '<br>Koordinat Laut : '+data[i]['koordinat_laut']
+	        				+ '<br> Merk mesin : '+data[i]['merk_mesin']
+	        				+ '<br> Daya mesin : '+data[i]['daya']
+	        				+ '<br> Jarak Dengan Pelabuhan : '+ data[i]['jarak_pelabuhan_last'] +' KM';
+	        				attr["title"] = 'Data Kapal ' + data[i]['vessel_name'];
+	        				var point = new esri.geometry.Point(data[i]['last_latitude'], data[i]['last_longitude']);
+	        				point = esri.geometry.geographicToWebMercator(point);
+	        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/"+data[i]['icon_kapal']+".png", 20, 20);
+	        				symbol.setAngle(data[i]['last_heading']);
+			                var graphic = new esri.Graphic(point, symbol);
+			                graphic.setAttributes(attr);
+			                features.push(graphic);
+			            }
+
+			            map.setZoom(5);
+			            featureLayer.applyEdits(features, null, null);
+			            showNotif('OK', 'Kapal telah difilter dengan pelabuhan terdekat radius 10 KM');
+        			},
+        			error: function (xhr, ajaxOptions, thrownError) {
+        				showNotif('ER', xhr.status +'\n'+ thrownError);
+        			}
+
+        		});
+
+        		$.ajax({
+	        		url: 'http://localhost:8000/getPelabuhan',
+	        		type: 'GET',
+	        		timeout: 60000,
+	        		contentType: "application/json",
+	        		success: function (data) {
+	        			var features = [];
+	        			for(var i = 0; i < data.length; i++){
+	        				var attr = {};
+	        				attr["title"] = 'Data Pelabuhan ' + data[i]['nama_pelabuhan'];
+	        				attr["description"] = 'Kode Pelabuhan : ' +data[i]['kd_pelabuhan'] 
+	        									+ '<br>Nama Kabupaten/Kota : ' +data[i]['nama_kabkota']; 
+	        				var point = new esri.geometry.Point(data[i]['latitude'], data[i]['longitude']);
+	        				point = esri.geometry.geographicToWebMercator(point);
+	        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/port.png", 20, 20);
+			                var graphic = new esri.Graphic(point, symbol);
+			                graphic.setAttributes(attr);
+			                features.push(graphic);
+			            }
+			            featureLayer.applyEdits(features, null, null);
+			        }
+			    });
+        	}else{
+        		showNotif('ER', 'Anda diwajibkan mengisi data yang yang dicari');
+        	}
+
+        });
+    });
+</script>
+
+<div class="right_col" role="main">
+	<div class="row">
+		<div class="col-md-12 col-sm-12 ">
+			<div class="x_panel">
+				<div class="x_title">
+					<h2>Form Port <small>- Digunakan untuk mengfilter kapal terdekat dengan pelabuhan terkait</small></h2>
+					<div class="clearfix"></div>
+				</div>
+				<div class="x_content">
+					<br />
+					<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+						<div class="form-group row">
+							<label class="control-label col-md-3 col-sm-3 ">Nama Pelabuhan</label>
+							<div class="col-md-9 col-sm-9 ">
+								<select class="form-control select2" id ="pelabuhan">
+									{{#each data_pelabuhan}}
+									<option value ="{{ id_pelabuhan }}">{{ nama_pelabuhan }}</option>
+									{{/each}}
+								</select>
+							</div>
+						</div>
+						<div class="ln_solid"></div>
+						<div class="item form-group">
+							<div class="col-md-6 col-sm-6 offset-md-3">
+								<button class="btn btn-success"  type="button" id ="search_kapal">Cari</button>
+							</div>
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		<div class="clearfix"></div>
+		<div class="clearfix"></div>
+		<div class="col-md-12 col-sm-12">
+			<div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'" ></div>
+		</div>
+		
+
+	</div>
+</div>
+
