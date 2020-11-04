@@ -102,7 +102,7 @@
 
         function writeDataKapal(){
         	$.ajax({
-	        		url: 'http://localhost:8000/getDataKapal',
+	        		url: 'http://34.101.119.211/getDataKapal',
 	        		type: 'GET',
 	        		timeout: 60000,
 	        		contentType: "application/json",
@@ -135,7 +135,7 @@
 			    });
 
         	$.ajax({
-        		url: 'http://localhost:8000/getPelabuhan',
+        		url: 'http://34.101.119.211/getPelabuhan',
         		type: 'GET',
         		timeout: 60000,
         		contentType: "application/json",
@@ -164,7 +164,7 @@
         	var search = $('#pelabuhan').val();
         	if(search.trim() != ""){
         		$.ajax({
-        			url: 'http://localhost:8000/getKapalByTujuan',
+        			url: 'http://34.101.119.211/getKapalByTujuan',
 	        		type: 'POST',
 	        		timeout: 60000,
 	        		contentType: "application/json; charset=utf-8",
