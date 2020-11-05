@@ -8,6 +8,10 @@ const hbs = require('hbs');
 const bodyParser = require('body-parser');
 const app = express();
 const fs = require('fs');
+const conn = require(__dirname+'/config/db')
+
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 
 //library templateting dan folder name
 app.set('/views',path.join(__dirname,'views'));
@@ -31,21 +35,88 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/static', express.static(path.join(__dirname, '/public')))
 //end of library templateting dan folder name
+//=========================== LOGIN =============================
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    conn.query('SELECT * FROM tb_user WHERE username = ? and password = ?', 
+    [username, password], function(err, rows, fields) {
+      if(err) return done(err);
+    
+      // if user not found
+      if (rows.length <= 0) {
+        return done('Incorrect username or password.');
+      } 
+      return done(null, rows[0]);
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id_user);
+});
+
+passport.deserializeUser(function(id, done) {
+  conn.query('SELECT * FROM tb_user WHERE id_user = ?', [id], function(err, user) {
+    if(err) return done(err);
+    done(null, user);
+  });
+});
+
+app.use(require('express-session')(
+  { secret: 'keyboard cat', resave: false, saveUninitialized: false })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated())
+    return next();
+  res.redirect('/login');
+}
+
+app.post('/login', 
+  passport.authenticate('local', { 
+    successRedirect: '/',
+    failureRedirect: '/login' }),
+  function(req, res) {
+    res.redirect('/');
+});
+
+app.get('/login',(req, res) => {    
+    // res.render('test_maps');
+    // hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/home.html', 'utf8'));
+    res.render('login')
+});
+
+
+app.get('/logout',
+  function(req, res){
+    req.logout();
+    res.redirect('/');
+});
 
 //============================================= bagian nembak data main/ get data ===============================================
-app.get('/getDataKapal',(req, res)=>{   
+app.get('/getDataKapal', isAuthenticated,(req, res)=>{   
  	main.getKapal(res);
 })
 
-app.get('/getPelabuhan',(req, res)=>{   
+app.get('/getPelabuhan', isAuthenticated,(req, res)=>{   
   main.getPelabuhanRes(res);
 })
 
-app.post('/searchKapal',(req, res)=>{   
+app.post('/searchKapal', isAuthenticated,(req, res)=>{   
   main.searchKapal(res, req.body.mmsi)
 })
 
-app.post('/getDataKapalByType',(req, res)=>{   
+app.post('/getKapalByTujuan', isAuthenticated,(req, res)=>{   
+  main.getKapalByTujuan(res, req.body.port)
+})
+
+app.post('/getDataKapalByType', isAuthenticated,(req, res)=>{   
   main.getKapalByType(res, req.body.type_kapal)
 })
 
@@ -53,7 +124,7 @@ app.post('/getKapalByNearPelabuhan',(req, res)=>{
   main.getKapalByNearPelabuhan(res, req.body.port)
 })
 
-app.post('/trackingKapal', (req,res) =>{
+app.post('/trackingKapal', isAuthenticated, (req,res) =>{
     var axios = require('axios')
     var qs = require('querystring')
     var url = 'https://sehati.hubla.dephub.go.id/Ais/TrackingKapal'
@@ -80,34 +151,34 @@ app.post('/trackingKapal', (req,res) =>{
 
 //============================================= buat halaman/ redirect halaman ===============================================
 
-app.get('/',(req, res) => {    
+app.get('/', isAuthenticated,(req, res) => {    
   	// res.render('test_maps');
   	hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/home.html', 'utf8'));
   	res.render('main')
 });
 
-app.get('/traffic',(req,res) =>{
+app.get('/traffic', isAuthenticated,(req,res) =>{
 	hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/traffic_map.html', 'utf8'));
 	res.render('main');
 })
 
-app.get('/ship',(req,res) =>{
+app.get('/ship', isAuthenticated,(req,res) =>{
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/ship_map.html', 'utf8'));
   main.getTypeKapal(res)
 })
 
-app.get('/voyage',(req,res) =>{
+app.get('/voyage', isAuthenticated,(req,res) =>{
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/voyage_map.html', 'utf8'));
   // res.render('main');
   main.getTujuanKapal(res)
 })
 
-app.get('/history',(req,res) =>{
+app.get('/history', isAuthenticated,(req,res) =>{
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/history_map.html', 'utf8'));
   res.render('main');
 })
 
-app.get('/port',(req,res) =>{
+app.get('/port', isAuthenticated,(req,res) =>{
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/port_map.html', 'utf8'));
   main.getPelabuhan(res)
 })

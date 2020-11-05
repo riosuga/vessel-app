@@ -1,7 +1,7 @@
 var haversine = require("haversine-distance");
 var async = require('async');
 const conn = require('../knex/knex.js');
-
+var updateDetail = require('../backend/olahDataDetail')
 
 
 //First point in your haversine calculation
@@ -46,7 +46,7 @@ const conn = require('../knex/knex.js');
 
 function getDataPelabuhan(){
 	let data_pelabuhan = []
-	return conn.select().table('tr_pelabuhan').where('id_pelabuhan',[453]).then(rows => {
+	return conn.select().table('tr_pelabuhan').where('flag_aktif','Y').then(rows => {
 		rows.forEach( function(data, index) {
 			tampung_pelabuhan = {
 				latitude : data['latitude'],
@@ -98,14 +98,14 @@ function moveDataKapalHistory(id_kapal, data){
 	// 	console.log(err)
 	// })
 
-
-	return conn.from(conn.raw('?? (??,??,??,??,??,??,??,??,??,??,??,??)',
+	return conn.from(conn.raw('?? (??,??,??,??,??,??,??,??,??,??,??,??,??,??)',
 					['tb_history_data_kapal', 'id_kapal','mmsi','vessel_name','last_heading','last_received_time_utc_unix'
-					,'jenis_kapal','icon_kapal','last_latitude','last_longitude','flag_tetap','jarak_pelabuhan_last','id_pelabuhan_last']))
+					,'jenis_kapal','icon_kapal','last_latitude','last_longitude','flag_tetap','jarak_pelabuhan_last','id_pelabuhan_last',
+					'jarak_pelabuhan_terdekat', 'id_pelabuhan_terdekat']))
 					 .insert(function (){
 					 	this.from('tb_data_kapal').where('id_kapal', id_kapal).select('id_kapal','mmsi','vessel_name','last_heading',
 					 		'last_received_time_utc_unix','jenis_kapal','icon_kapal','last_latitude','last_longitude','flag_tetap',
-					 		'jarak_pelabuhan_last','id_pelabuhan_last')
+					 		'jarak_pelabuhan_last','id_pelabuhan_last', 'jarak_pelabuhan_terdekat', 'id_pelabuhan_terdekat')
 					 }).then(results =>{
 					 	updateDataKapal(id_kapal, data);
 					 }).catch(err =>{
@@ -131,7 +131,68 @@ function updateFlagPenarikanDataKapal(id_penarikan){
 	})
 }
 
+async function insertUpdateDataKapal(data, id_kapal){
+	let ada_kapal = await getDataKapal(id_kapal)
+	if(ada_kapal != null){
+		await moveDataKapalHistory(id_kapal, data)
+	}else{
+		await insertDataKapal(data)
+	}
+}
+
 async function olahData(){
+	let data_pelabuhan = await getDataPelabuhan();
+	let data_kapal = await getDataKapalTemp();
+
+	if(data_kapal.length === 0){
+		console.log('data kosongggggg harap isi')
+	}else{
+		for(let i = 0; i < data_kapal.length; i++){
+			// let ret_val
+			//cek id kapal yang utama
+	        let id_penarikan =  data_kapal[i]['id_penarikan']
+	        await updateFlagPenarikanDataKapal(data_kapal[i]['id_penarikan'])
+	        delete data_kapal[i]['id_penarikan']
+			let point_b = {lat : data_kapal[i]['last_latitude'], lng : data_kapal[i]['last_longitude']}
+			let tampung_jarak = []
+			for(let j = 0; j < data_pelabuhan.length; j++){
+				let point_a = {lat : data_pelabuhan[j]['latitude'], lng : data_pelabuhan[j]['longitude']}
+				tampung_jarak.push({mssi : data_kapal[i]['mmsi'] ,id_pelabuhan : data_pelabuhan[j]['id_pelabuhan'], jarak_terdekat : haversine(point_b, point_a)})
+			}
+
+			tampung_jarak.sort(function(a,b){
+				return a.jarak_terdekat - b.jarak_terdekat
+			})		
+
+			// console.log(tampung_jarak[0]['jarak_terdekat'])
+			console.log("start update/insert data kapal ==============="+ data_kapal[i]['vessel_name'] +"===============")
+			if(tampung_jarak[0]['jarak_terdekat']/1000 <= 10){
+				data_kapal[i]['flag_tetap'] = 'Y'
+				data_kapal[i]['id_pelabuhan_last'] = tampung_jarak[0]['id_pelabuhan']
+				data_kapal[i]['jarak_pelabuhan_last'] = tampung_jarak[0]['jarak_terdekat']/1000
+
+				data_kapal[i]['id_pelabuhan_terdekat'] = tampung_jarak[0]['id_pelabuhan']
+				data_kapal[i]['jarak_pelabuhan_terdekat'] = tampung_jarak[0]['jarak_terdekat']/1000
+
+				await insertUpdateDataKapal(data_kapal[i], data_kapal[i]['id_kapal'])
+			}else{
+				data_kapal[i]['flag_tetap'] = 'N'
+				data_kapal[i]['id_pelabuhan_terdekat'] = tampung_jarak[0]['id_pelabuhan']
+				data_kapal[i]['jarak_pelabuhan_terdekat'] = tampung_jarak[0]['jarak_terdekat']/1000
+				await insertUpdateDataKapal(data_kapal[i], data_kapal[i]['id_kapal'])
+			}
+			console.log("end update/insert data kapal ==============="+ data_kapal[i]['vessel_name'] +"===============")
+			console.log("start update/insert data detail kapal ==============="+ data_kapal[i]['vessel_name'] +"===============")
+			await updateDetail.olahDetailByKapal(data_kapal[i]['id_kapal'])
+			console.log("end update/insert data detail kapal ==============="+ data_kapal[i]['vessel_name'] +"===============")
+		}
+	}
+
+	conn.destroy();
+}
+
+
+async function olahData_backup(){
 	let data_pelabuhan = await getDataPelabuhan();
 	let data_kapal = await getDataKapalTemp();
 
@@ -147,12 +208,9 @@ async function olahData(){
         delete data_kapal[i]['id_penarikan']
 		let point_a = {lat : data_pelabuhan[0]['latitude'], lng : data_pelabuhan[0]['longitude']}
 		let point_b = {lat : data_kapal[i]['last_latitude'], lng : data_kapal[i]['last_longitude']}
-
-		let jarak_by_haversine = haversine(point_b, point_a);
-
+		let jarak_by_haversine = haversine(point_b, point_a);	
 		data_kapal[i]['id_pelabuhan_last'] = data_pelabuhan[0]['id_pelabuhan']
 		data_kapal[i]['jarak_pelabuhan_last'] = jarak_by_haversine
-
 		let ada_kapal = await getDataKapal(data_kapal[i]['id_kapal'])
 		if(ada_kapal != null){
 			console.log("start update data kapal ==============="+ data_kapal[i]['vessel_name'] +"===============")
@@ -170,8 +228,8 @@ async function olahData(){
 				data_kapal[i]['flag_tetap'] = 'Y'
 				await insertDataKapal(data_kapal[i])
 			}else{
-				// data_kapal[i]['flag_tetap'] = 'X'
-				// delete data_kapal[i]['id_pelabuhan_last']
+				data_kapal[i]['flag_tetap'] = 'X'
+				data_kapal[i]['id_pelabuhan_last'] = '-'
 				// await insertDataKapal(data_kapal[i])
 			}
 		}

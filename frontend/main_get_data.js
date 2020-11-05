@@ -85,3 +85,11 @@ exports.getKapalByNearPelabuhan = async function(res, id_pelabuhan){
       res.send(results)
     })
 }
+
+exports.getKapalByTujuan = async function(res, tujuan){
+  let sql = "SELECT *, left(jarak_pelabuhan_last/1000,7) as jarak_pelabuhan_last FROM tb_data_kapal a join tb_data_kapal_detail b on a.id_kapal = b.id_kapal where b.tujuan ='"+tujuan+"'";
+  let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      res.send(results)
+    })
+}

@@ -102,7 +102,7 @@
 
         function writeDataKapal(){
         	$.ajax({
-        		url: 'http://34.101.119.211/getDataKapal',
+        		url: '/getDataKapal',
         		type: 'GET',
         		timeout: 60000,
         		contentType: "application/json",
@@ -112,7 +112,7 @@
         				var attr = {};
         				attr["description"] = 'Asal Negara : ' +data[i]['bendera_kapal'] 
         				+ '<br>Jenis Kapal :' +data[i]['jenis_kapal']
-        				+ '<br>IMO/MSSI :' +data[i]['imo_mssi']
+        				+ '<br>IMO/MMSI :' +data[i]['imo_mmsi']
         				+ '<br>Arah Kapal :' +data[i]['arah_kapal']+'°'
         				+ '<br>Kecepatan Kapal :' +data[i]['kecepatan_kapal']
         				+ '<br>Tujuan : ' + data[i]['tujuan']
@@ -139,7 +139,7 @@
 		    });
 
 		    $.ajax({
-        		url: 'http://34.101.119.211/getPelabuhan',
+        		url: '/getPelabuhan',
         		type: 'GET',
         		timeout: 60000,
         		contentType: "application/json",
@@ -168,7 +168,7 @@
         	console.log(search);
         	if(search.trim() != ""){
         		$.ajax({
-        			url: 'http://34.101.119.211/searchKapal',
+        			url: '/searchKapal',
 	        		type: 'POST',
 	        		timeout: 60000,
 	        		contentType: "application/json; charset=utf-8",
@@ -180,7 +180,7 @@
         				}else{
         					var kordinat = [data[0].last_latitude, data[0].last_longitude];
         					$.ajax({
-			        			url: 'http://34.101.119.211/trackingKapal',
+			        			url: '/trackingKapal',
 				        		type: 'POST',
 				        		timeout: 60000,
 				        		contentType: "application/json; charset=utf-8",
