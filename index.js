@@ -164,7 +164,7 @@ app.post('/trackingKapal', isAuthenticated, (req,res) =>{
 //============================================= buat halaman/ redirect halaman ===============================================
 //============================================= start halaman modul utama ===============================================
 
-app.get('/',(req, res) => {    
+app.get('/', isAuthenticated,(req, res) => {    
   	// res.render('test_maps');
     let sess = writeSessionOrang(req,res) 
     // let sess ='moncrottt'
