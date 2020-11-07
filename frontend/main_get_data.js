@@ -39,12 +39,13 @@ exports.getKapalByType = async function(res, type_kapal){
   	})
 }
 
-exports.getTypeKapal = async function(res){
+exports.getTypeKapal = async function(res, sess){
 	let sql = "SELECT DISTINCT jenis_kapal FROM tb_data_kapal";	
 	conn.query(sql, (err, results) => {
   		if(err) throw err; 
   		res.render('main',{
-		    data_jenis_kapal: results
+		    data_jenis_kapal: results,
+        nama_orang : sess
 		 });
   	})
 }
@@ -58,22 +59,24 @@ exports.getPelabuhanRes = async function(res){
     })
 }
 
-exports.getPelabuhan = async function(res){
+exports.getPelabuhan = async function(res, sess){
   let sql = "SELECT * FROM tr_pelabuhan where flag_aktif ='Y'"; 
   conn.query(sql, (err, results) => {
       if(err) throw err; 
       res.render('main',{
-        data_pelabuhan: results
+        data_pelabuhan: results,
+        nama_orang : sess
      });
     })
 }
 
-exports.getTujuanKapal = async function(res){
+exports.getTujuanKapal = async function(res, sess){
   let sql = "SELECT DISTINCT tujuan FROM tb_data_kapal_detail where tujuan is not null"; 
   conn.query(sql, (err, results) => {
       if(err) throw err; 
       res.render('main',{
-        data_tujuan: results
+        data_tujuan: results,
+        nama_orang : sess
      });
     })
 }

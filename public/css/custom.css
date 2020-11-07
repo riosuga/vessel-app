@@ -1,3 +1,26 @@
 .swal-footer {
   text-align: center;
 }
+
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited,
+.btn-primary:focus {
+  background-color: #Ff9900 !important;
+  border-color: #203347 !important;
+}
+
+.btn-success,
+.btn-success:hover,
+.btn-success:active,
+.btn-success:visited,
+.btn-success:focus {
+  background-color: #Ff9900 !important;
+  border-color: #203347 !important;
+}
+
+.main_menu_side, body, .main_menu_side, .scroll-view {
+	background-color: #203347 !important;
+}

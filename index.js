@@ -12,6 +12,7 @@ const conn = require(__dirname+'/config/db')
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+var flash = require('connect-flash');
 
 //library templateting dan folder name
 app.set('/views',path.join(__dirname,'views'));
@@ -36,6 +37,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/static', express.static(path.join(__dirname, '/public')))
 //end of library templateting dan folder name
 //=========================== LOGIN =============================
+app.use(flash());
 passport.use(new LocalStrategy(
   function(username, password, done) {
     conn.query('SELECT * FROM tb_user WHERE username = ? and password = ?', 
@@ -44,7 +46,9 @@ passport.use(new LocalStrategy(
     
       // if user not found
       if (rows.length <= 0) {
-        return done('Incorrect username or password.');
+        // req.flash('kontol');
+        // return done('Incorrect username or password.');
+        return done()
       } 
       return done(null, rows[0]);
     });
@@ -69,19 +73,27 @@ app.use(require('express-session')(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated())
     return next();
-  res.redirect('/login');
+    res.redirect('/login');
+}
+
+function writeSessionOrang(req, res){
+  let data_user = JSON.parse(JSON.stringify(req.user))
+  return data_user[0]['nama_pj'];
+  // res.setHeader('Content-Type', 'text/html')
+  // res.write("<script type =\"module\">$('#nama_user1').html('"+data_user[0]['nama_pj']+"');$('#nama_user2').html('"+data_user[0]['nama_pj']+"')</script>")
+  // res.write("<script type =\"module\">document.getElementById('nama_user1').innerHTML = 'Hello World';</script>")
+  // res.end()
 }
 
 app.post('/login', 
   passport.authenticate('local', { 
     successRedirect: '/',
-    failureRedirect: '/login' }),
+    failureRedirect: '/login',
+    failureFlash: true 
+  }),
   function(req, res) {
     res.redirect('/');
 });
@@ -89,7 +101,7 @@ app.post('/login',
 app.get('/login',(req, res) => {    
     // res.render('test_maps');
     // hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/home.html', 'utf8'));
-    res.render('login')
+    res.render('login', {message: req.flash('kontollllllll')})
 });
 
 
@@ -150,42 +162,57 @@ app.post('/trackingKapal', isAuthenticated, (req,res) =>{
 })
 
 //============================================= buat halaman/ redirect halaman ===============================================
+//============================================= start halaman modul utama ===============================================
 
-app.get('/', isAuthenticated,(req, res) => {    
+app.get('/',(req, res) => {    
   	// res.render('test_maps');
+    // let sess = writeSessionOrang(req,res) 
+    let sess ='moncrottt'
   	hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/home.html', 'utf8'));
-  	res.render('main')
+  	res.render('main', {nama_orang : sess})
 });
 
 app.get('/traffic', isAuthenticated,(req,res) =>{
 	hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/traffic_map.html', 'utf8'));
-	res.render('main');
+  let sess = writeSessionOrang(req,res)
+	res.render('main', {nama_orang : sess})
 })
 
 app.get('/ship', isAuthenticated,(req,res) =>{
+  let sess = writeSessionOrang(req,res) 
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/ship_map.html', 'utf8'));
-  main.getTypeKapal(res)
+  main.getTypeKapal(res, sess)
 })
 
 app.get('/voyage', isAuthenticated,(req,res) =>{
+  let sess = writeSessionOrang(req,res) 
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/voyage_map.html', 'utf8'));
-  // res.render('main');
-  main.getTujuanKapal(res)
+  // res.render('main', {nama_orang : sess})
+  main.getTujuanKapal(res, sess)
 })
 
 app.get('/history', isAuthenticated,(req,res) =>{
+  let sess = writeSessionOrang(req,res) 
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/history_map.html', 'utf8'));
-  res.render('main');
+  res.render('main', {nama_orang : sess})
 })
 
 app.get('/port', isAuthenticated,(req,res) =>{
+  let sess = writeSessionOrang(req,res) 
   hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/port_map.html', 'utf8'));
-  main.getPelabuhan(res)
+  main.getPelabuhan(res, sess)
 })
 
-// app.get('/test', (req,res) =>{
-// 	res.render('test_maps');
-// })
+//============================================= end halaman modul utama ===============================================
+//============================================= start halaman modul login ===============================================
+app.get('/user_list', isAuthenticated,(req,res) =>{
+  let sess = writeSessionOrang(req,res) 
+  hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/user.html', 'utf8'));
+  res.render('main', {nama_orang : sess})
+})
+
+
+//============================================= end halaman modul login ===============================================
 
 app.listen(8000, () => {
   console.log('Server is running at port 8000');    
