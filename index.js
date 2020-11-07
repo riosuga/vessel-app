@@ -166,8 +166,8 @@ app.post('/trackingKapal', isAuthenticated, (req,res) =>{
 
 app.get('/',(req, res) => {    
   	// res.render('test_maps');
-    // let sess = writeSessionOrang(req,res) 
-    let sess ='moncrottt'
+    let sess = writeSessionOrang(req,res) 
+    // let sess ='moncrottt'
   	hbs.registerPartial('content', fs.readFileSync( __dirname + '/views/layout/home.html', 'utf8'));
   	res.render('main', {nama_orang : sess})
 });
