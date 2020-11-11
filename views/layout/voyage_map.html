@@ -102,7 +102,7 @@
 
         function writeDataKapal(){
         	$.ajax({
-	        		url: '/getDataKapal',
+	        		url: '/main_module/getDataKapal',
 	        		type: 'GET',
 	        		timeout: 60000,
 	        		contentType: "application/json",
@@ -123,7 +123,7 @@
 
 	        				var point = new esri.geometry.Point(data[i]['last_latitude'], data[i]['last_longitude']);
 	        				point = esri.geometry.geographicToWebMercator(point);
-	        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/"+data[i]['icon_kapal']+".png", 20, 20);
+	        				var symbol = new esri.symbol.PictureMarkerSymbol("/static/image/"+data[i]['icon_kapal']+".png", 20, 20);
 	        				symbol.setAngle(data[i]['last_heading']);
 			                var graphic = new esri.Graphic(point, symbol);
 			                graphic.setAttributes(attr);
@@ -135,7 +135,7 @@
 			    });
 
         	$.ajax({
-        		url: '/getPelabuhan',
+        		url: '/main_module/getPelabuhan',
         		type: 'GET',
         		timeout: 60000,
         		contentType: "application/json",
@@ -148,7 +148,7 @@
         									+ '<br>Nama Kabupaten/Kota : ' +data[i]['nama_kabkota']; 
         				var point = new esri.geometry.Point(data[i]['latitude'], data[i]['longitude']);
         				point = esri.geometry.geographicToWebMercator(point);
-        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/port.png", 20, 20);
+        				var symbol = new esri.symbol.PictureMarkerSymbol("/static/image/port.png", 20, 20);
 		                var graphic = new esri.Graphic(point, symbol);
 		                graphic.setAttributes(attr);
 		                features.push(graphic);
@@ -164,7 +164,7 @@
         	var search = $('#pelabuhan').val();
         	if(search.trim() != ""){
         		$.ajax({
-        			url: '/getKapalByTujuan',
+        			url: '/main_module/getKapalByTujuan',
 	        		type: 'POST',
 	        		timeout: 60000,
 	        		contentType: "application/json; charset=utf-8",
@@ -188,7 +188,7 @@
 
 	        				var point = new esri.geometry.Point(data[i]['last_latitude'], data[i]['last_longitude']);
 	        				point = esri.geometry.geographicToWebMercator(point);
-	        				var symbol = new esri.symbol.PictureMarkerSymbol("static/image/"+data[i]['icon_kapal']+".png", 20, 20);
+	        				var symbol = new esri.symbol.PictureMarkerSymbol("/static/image/"+data[i]['icon_kapal']+".png", 20, 20);
 	        				symbol.setAngle(data[i]['last_heading']);
 			                var graphic = new esri.Graphic(point, symbol);
 			                graphic.setAttributes(attr);

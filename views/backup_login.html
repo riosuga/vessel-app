@@ -10,28 +10,23 @@
     <title>Si-Moca | Sistem Informasi Monitoring Traffic Kapal Pelindo II</title>
 
     <!-- Bootstrap -->
-    <link href="/static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="/static/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="static/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <!-- NProgress -->
-    <link href="/static/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="static/vendors/nprogress/nprogress.css" rel="stylesheet">
     <!-- Animate.css -->
-    <link href="/static/vendors/animate.css/animate.min.css" rel="stylesheet">
+    <link href="static/vendors/animate.css/animate.min.css" rel="stylesheet">
 
     <!-- Custom Theme Style -->
-    <link href="/static/build/css/custom.min.css" rel="stylesheet">
-    <link href="/static/css/custom.css" rel="stylesheet"> 
-    <script  src="/static/vendors/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <link href="static/build/css/custom.min.css" rel="stylesheet">
+    <link href="static/css/custom.css" rel="stylesheet"> 
+    <script  src="static/vendors/jquery/dist/jquery.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="/static/js/util_app.js"></script>
   </head>
 
-  <body class="login" style ="background-image: url('/static/image/ship_login1.jpg');">
+  <body class="login" style ="background-image: url('static/image/ship_login1.jpg');">
     <div>
-      {{#if message}}
-      <h1>{{ message }}</h1>
-      {{/if}}
       <a class="hiddenanchor" id="signup"></a>
       <a class="hiddenanchor" id="signin"></a>
       <div class="login_wrapper">
@@ -40,7 +35,7 @@
             <div>
               <img src="/static/image/logo2.png" style="width: 100%;">
             </div>
-             <form action="/auth/login" method="POST">
+             <form action="/login" method="POST">
               <h1>Login Form</h1>
               <div>
                 <input type="text" class="form-control" name="username" placeholder="Username" required="" />
@@ -77,34 +72,34 @@
 
         <div id="register" class="animate form registration_form">
           <section class="login_content">
-            <div>
+            <div action ="/daftar" method="POST">
               <img src="/static/image/logo2.png" style="width: 100%;">
             </div>
-            <form>
+            <form action="/daftar" method="POST">
               <h1>Buat Akun</h1>
               <div>
-                <input type="text" name ="username" id="username_daftar" class="form-control" placeholder="Username" required="" />
+                <input type="text" name ="username" class="form-control" placeholder="Username" required="" />
               </div>
               <div>
-                <input type="email" name ="email" id ="email" class="form-control" placeholder="Email" required="" />
+                <input type="email" name ="email" class="form-control" placeholder="Email" required="" />
               </div>
               <div>
-                <input type="password" name ="password" id="password_daftar" class="form-control" placeholder="Password" required="" />
+                <input type="password" name ="password" class="form-control" placeholder="Password" required="" />
               </div>
               <div>
-                <input type="text" name ="nama_pj" id ="nama_pj" class="form-control" placeholder="Nama Penanggung Jawab" required="" />
+                <input type="text" name ="nama_pj" class="form-control" placeholder="Nama Penanggung Jawab" required="" />
               </div>
               <div>
-                <input type="text" name ="perusahaan" id ="perusahaan" class="form-control" placeholder="Perusahaan" required="" />
+                <input type="text" name ="perusahaan" class="form-control" placeholder="Perusahaan" required="" />
               </div>
               <div>
-                <input type="text" name= "alamat_perusahaan" id ="alamat_perusahaan" class="form-control" placeholder="Alamat Perusahaan" required="" />
+                <input type="text" name= "alamat_perusahaan" class="form-control" placeholder="Alamat Perusahaan" required="" />
               </div>
               <div>
-                <input type="text" name ="contact" id="contact" class="form-control" placeholder="Contact" required="" />
+                <input type="text" name ="contact" class="form-control" placeholder="Contact" required="" />
               </div>
               <div>
-                <button type="button" id="btn_daftar" class="btn btn-primary" >Daftar</button>
+                <button type="submit" class="btn btn-primary" >Daftar</button>
               </div>
 
               <div class="clearfix"></div>
@@ -131,41 +126,11 @@
 
     <script type="text/javascript" charset="utf-8" type ="module">
       $(document).ready(function () {
-        $('#btn_daftar').click(function(){
-          var input = {
-            username : $('#username_daftar').val(),
-            email : $('#email').val(),
-            password : $('#password_daftar').val(),
-            nama_pj : $('#nama_pj').val(),
-            perusahaan : $('#perusahaan').val(),
-            alamat_perusahaan : $('#alamat_perusahaan').val(),
-            contact : $('#contact').val()
-          }
-
-          $.ajax({
-            url:'/auth/daftar',
-            data : JSON.stringify(input),
-            type:'POST',
-            contentType: "application/json",
-            success:function(data){
-              // console.log(data)
-              if(data.kode == '500'){
-                showNotif('ER', data.message);
-              }else{
-                showNotif('OK', data.message);
-                window.location = '/login';
-              }
-            },
-            error:function(err){
-              showNotif('ER', 'Gagal dalam melakukan pendaftaran');
-            }
-          });
-        });
         // (function() {
         //     var curImgId = 1;
         //     var numberOfImages = 6; // Change this to the number of background images
         //     window.setInterval(function() {
-        //         $('body').css('background-image','url(/static/image/ship_login' + curImgId + '.jpg)');
+        //         $('body').css('background-image','url(static/image/ship_login' + curImgId + '.jpg)');
         //         curImgId = (curImgId + 1) % numberOfImages;
         //     }, 15 * 1000);
         // })();

@@ -45,12 +45,11 @@ exports.getTypeKapal = async function(res, sess){
   		if(err) throw err; 
   		res.render('main',{
 		    data_jenis_kapal: results,
-        nama_orang : sess['nama_pj'], 
-        role_user : sess['role_user']
+	        nama_orang : sess['nama_pj'], 
+	        role_user : sess['role_user']
 		 });
   	})
 }
-
 
 exports.getPelabuhanRes = async function(res){
   let sql = "SELECT * FROM tr_pelabuhan where flag_aktif ='Y'"; 
