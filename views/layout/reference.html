@@ -1,0 +1,132 @@
+<div class="right_col" role="main">
+	<div class="row">
+		<div class="col-md-12 col-sm-12 ">
+			<button class="btn btn-success" onclick="showAddReference()">Tambah Referensi</button>
+			<table class="table table-striped" id="mytable">
+				<thead>
+					<tr>
+						<th>Kode Grup</th>
+						<th>Kode</th>
+						<th>Uraian</th>
+						<th>Keterangan</th>
+						<th>Aksi</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#each results}}
+					<tr>
+			          <td>{{ kd_grup }}</td>
+			          <td>{{ kode }}</td>
+			          <td>{{ uraian }}</td>
+			          <td>{{ keterangan }}</td>
+			          <td>
+			            <a href="javascript:void(0);" class="btn btn-sm btn-warning" onclick ="showUpdateReference('{{ kd_grup }}','{{ kode }}')">Edit Referensi</a>
+			            <a href="javascript:void(0);" class="btn btn-sm btn-danger" onclick ="showDeleteReference('{{ kd_grup }}', '{{ kode }}')">Hapus Referensi</a>
+			          </td>
+			        </tr>
+					{{/each}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<!-- Add New Product Modal-->
+<form action="/reference/add_reference" method="post">
+	<div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Tambah Data Referensi</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Kode Grup</label>
+						<input type="text" name="kd_grup" class="form-control" placeholder="Kode Grup" required>
+					</div>
+					<div class="form-group">
+						<label>Kode</label>
+						<input type="text" name="kode" class="form-control" placeholder="Kode" required>
+					</div>
+					<div class="form-group">
+						<label>Uraian</label>
+						<input type="text" name="uraian" class="form-control" placeholder="Uraian" required>
+					</div>
+					<div class="form-group">
+						<label>Keterangan</label>
+						<input type="text" name="keterangan" class="form-control" placeholder="Keterangan" required>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<!-- Edit Product Modal-->
+<form action="/reference/update_reference" method="post">
+	<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Edit Data Referensi</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Kode Grup</label>
+						<input type="text" name="kd_grup" class="form-control" placeholder="Kode Grup" readonly>
+					</div>
+					<div class="form-group">
+						<label>Kode</label>
+						<input type="text" name="kode" class="form-control" placeholder="Kode" readonly>
+					</div>
+					<div class="form-group">
+						<label>Uraian</label>
+						<input type="text" name="uraian" class="form-control" placeholder="Uraian" required>
+					</div>
+					<div class="form-group">
+						<label>Keterangan</label>
+						<input type="text" name="keterangan" class="form-control" placeholder="Keterangan" required>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input type="hidden" name="id" class="product_id">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Update</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<!-- Delete Product Modal-->
+<form id="add-row-form" action="/user/reference" method="post">
+	<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="myModalLabel">Hapus Data Referensi</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				</div>
+				<div class="modal-body">
+					<strong>Apakah anda yakin untuk menghapus data ini?</strong>
+				</div>
+				<div class="modal-footer">
+					<input type="hidden" name="kd_grup" class="form-control" required>
+					<input type="hidden" name="kode" class="form-control" readonly>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-success">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

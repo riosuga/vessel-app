@@ -37,6 +37,7 @@ app.use('/static', express.static(path.join(__dirname, '/public')))
 const auth = require(__dirname+"/route/auth_routes");
 const main_module = require(__dirname+"/route/main_modules_routes");
 const user_routes = require(__dirname+"/route/user_routes");
+const reference = require(__dirname+"/route/reference_routes");
 
 app.use(
     session({
@@ -60,7 +61,7 @@ auth_config.authConfig(passport);
 // Routes
 app.use("/", auth)
 app.use("/auth", auth);
-// app.use("/main_module", auth_config.isAuthenticated, main_module);
+app.use("/reference", auth_config.isAuthenticated, reference);
 app.use("/main_module", auth_config.isAuthenticated, main_module);
 app.use("/user", auth_config.isAuthenticated, user_routes);
 

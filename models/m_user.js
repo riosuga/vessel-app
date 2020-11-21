@@ -5,7 +5,7 @@ const fs = require('fs');
 
 function renderPageError(req,res, sess, message){
   hbs.registerPartial('content', fs.readFileSync( './views/error_page/505Page.html', 'utf8'));
-  res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], message : 'Mohon maaf, Terdapat error pada pendaftaran', url : '/user/'})
+  res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], message : message, url : '/user/'})
 }
 
 exports.daftar = function(req,res){
@@ -78,7 +78,6 @@ exports.addUser = async function(req,res,sess){
         renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengecekan pendaftaran')
       } 
     })
-
 }
 
 exports.updateUser = async function(req,res,sess){
