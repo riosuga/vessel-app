@@ -36,6 +36,7 @@ app.use('/static', express.static(path.join(__dirname, '/public')))
 
 const auth = require(__dirname+"/route/auth_routes");
 const main_module = require(__dirname+"/route/main_modules_routes");
+const user_routes = require(__dirname+"/route/user_routes");
 
 app.use(
     session({
@@ -61,6 +62,7 @@ app.use("/", auth)
 app.use("/auth", auth);
 // app.use("/main_module", auth_config.isAuthenticated, main_module);
 app.use("/main_module", auth_config.isAuthenticated, main_module);
+app.use("/user", auth_config.isAuthenticated, user_routes);
 
 app.listen(8000, () => {
   console.log('Server is running at port 8000');    

@@ -1,0 +1,15 @@
+<div class="col-md-12">
+  <div class="col-middle">
+    <div class="text-center">
+      <h1 class="error-number">500</h1>
+      <h2>Internal Server Error</h2>
+      <p>{{message}} anda akan diarahkan menu sebelumnya setelah 5 detik
+      </p>
+    </div>
+  </div>
+</div>
+<script type ="module">   
+  setTimeout(function(){
+            window.location.href = '{{url}}';
+         }, 5000);
+</script>

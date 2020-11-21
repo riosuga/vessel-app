@@ -1,31 +1,36 @@
 <div class="right_col" role="main">
 	<div class="row">
 		<div class="col-md-12 col-sm-12 ">
-			<button class="btn btn-success" data-toggle="modal" data-target="#myModalAdd">Add New</button>
+			<button class="btn btn-success" onclick="showAddUser()">Tambah User</button>
 			<table class="table table-striped" id="mytable">
 				<thead>
 					<tr>
 						<th>Username</th>
 						<th>Password</th>
+						<th>Nama User</th>
 						<th>Email</th>
+						<th>Contact</th>
 						<th>Role User</th>
-						<th>Status User</th>
-						<th>Action</th>
+						<th>Aktif</th>
+						<th>Aksi</th>
 					</tr>
 				</thead>
 				<tbody>
 					{{#each results}}
 					<tr>
-						<td>{{ product_id }}</td>
-						<td>{{ product_name }}</td>
-						<td>{{ product_price }}</td>
-						<td>{{ product_price }}</td>
-						<td>{{ product_price }}</td>
-						<td>
-							<a href="javascript:void(0);" class="btn btn-sm btn-info edit" data-id="{{ product_id }}" data-product_name="{{ product_name }}" data-product_price="{{ product_price }}">Edi User</a>
-							<a href="javascript:void(0);" class="btn btn-sm btn-danger delete" data-id="{{ product_id }}">Blokir User</a>
-						</td>
-					</tr>
+			          <td>{{ username }}</td>
+			          <td>{{ password }}</td>
+			          <td>{{ nama_pj }}</td>
+			          <td>{{ email }}</td>
+			          <td>{{ contact }}</td>
+			          <td>{{ role_user }}</td>
+			          <td>{{ flag_aktif }}</td>
+			          <td>
+			          	<a href="javascript:void(0);" class="btn btn-sm btn-info" onclick ="showDetailUser('{{ id_user }}')">Detail User</a>
+			            <a href="javascript:void(0);" class="btn btn-sm btn-warning" onclick ="showUpdate('{{ id_user }}')">Edit User</a>
+			            <a href="javascript:void(0);" class="btn btn-sm btn-danger" onclick ="showDelete('{{ id_user }}')">Hapus User</a>
+			          </td>
+			        </tr>
 					{{/each}}
 				</tbody>
 			</table>
@@ -33,24 +38,106 @@
 	</div>
 </div>
 
-<!-- Add New Product Modal-->
-<form action="/save" method="post">
-	<div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- detail data -->
+<form action="#">
+	<div class="modal fade" id="myModalDetail" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Add New Product</h5>
+					<h5 class="modal-title" id="exampleModalLabel">Detail User</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
 					<div class="form-group">
-						<input type="text" name="product_name" class="form-control" placeholder="Product Name" required>
+						<label>ID User</label>
+						<input type="text" name="id_user" class="form-control" placeholder="ID User" required disabled>
 					</div>
-
 					<div class="form-group">
-						<input type="text" name="product_price" class="form-control" placeholder="Price" required>
+						<label>Username</label>
+						<input type="text" name="username" class="form-control" placeholder="Username" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="text" name="password" class="form-control" placeholder="Password" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Nama Penanggung Jawab</label>
+						<input type="text" name="nama_pj" class="form-control" placeholder="Nama Penanggung Jawab" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Perusahaan</label>
+						<input type="text" name="perusahaan" class="form-control" placeholder="Perusahaan" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Alamat Perusahaan</label>
+						<input type="text" name="alamat_perusahaan" class="form-control" placeholder="Alamat Perusahaan" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Contact</label>
+						<input type="text" name="contact" class="form-control" placeholder="Contact" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Email</label>
+						<input type="text" name="email" class="form-control" placeholder="Email" required disabled>
+					</div>
+					<div class="form-group">
+						<label>Role User</label>
+						<input type="text" name="role_user" class="form-control" placeholder="Role User" required disabled>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<!-- Add New Product Modal-->
+<form action="/user/add_user" method="post">
+	<div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Tambah User</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Username</label>
+						<input type="text" name="username" class="form-control" placeholder="Username" required>
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="text" name="password" class="form-control" placeholder="Password" required>
+					</div>
+					<div class="form-group">
+						<label>Nama Penanggung Jawab</label>
+						<input type="text" name="nama_pj" class="form-control" placeholder="Nama Penanggung Jawab" required>
+					</div>
+					<div class="form-group">
+						<label>Perusahaan</label>
+						<input type="text" name="perusahaan" class="form-control" placeholder="Perusahaan" required>
+					</div>
+					<div class="form-group">
+						<label>Alamat Perusahaan</label>
+						<input type="text" name="alamat_perusahaan" class="form-control" placeholder="Alamat Perusahaan" required>
+					</div>
+					<div class="form-group">
+						<label>Contact</label>
+						<input type="text" name="contact" class="form-control" placeholder="Contact" required>
+					</div>
+					<div class="form-group">
+						<label>Email</label>
+						<input type="text" name="email" class="form-control" placeholder="Email" required>
+					</div>
+					<div class="form-group">
+						<label>Role User</label>
+						<input type="text" name="role_user" class="form-control" placeholder="Role User" required>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -63,23 +150,49 @@
 </form>
 
 <!-- Edit Product Modal-->
-<form action="/update" method="post">
+<form action="/user/update_user" method="post">
 	<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Edit Product</h5>
+					<h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
+					<input type="hidden" name="id_user" class="form-control" placeholder="ID User" required>
 					<div class="form-group">
-						<input type="text" name="product_name" class="form-control product_name" placeholder="Product Name" required>
+						<label>Username</label>
+						<input type="text" name="username" class="form-control" placeholder="Username" required>
 					</div>
-
 					<div class="form-group">
-						<input type="text" name="product_price" class="form-control price" placeholder="Price" required>
+						<label>Password</label>
+						<input type="text" name="password" class="form-control" placeholder="Password" required>
+					</div>
+					<div class="form-group">
+						<label>Nama Penanggung Jawab</label>
+						<input type="text" name="nama_pj" class="form-control" placeholder="Nama Penanggung Jawab" required>
+					</div>
+					<div class="form-group">
+						<label>Perusahaan</label>
+						<input type="text" name="perusahaan" class="form-control" placeholder="Perusahaan" required>
+					</div>
+					<div class="form-group">
+						<label>Alamat Perusahaan</label>
+						<input type="text" name="alamat_perusahaan" class="form-control" placeholder="Alamat Perusahaan" required>
+					</div>
+					<div class="form-group">
+						<label>Contact</label>
+						<input type="text" name="contact" class="form-control" placeholder="Contact" required>
+					</div>
+					<div class="form-group">
+						<label>Email</label>
+						<input type="text" name="email" class="form-control" placeholder="Email" required>
+					</div>
+					<div class="form-group">
+						<label>Role User</label>
+						<input type="text" name="role_user" class="form-control" placeholder="Role User" required>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -93,19 +206,19 @@
 </form>
 
 <!-- Delete Product Modal-->
-<form id="add-row-form" action="/delete" method="post">
+<form id="add-row-form" action="/user/delete_user" method="post">
 	<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="myModalLabel">Delete Product</h5>
+					<h5 class="modal-title" id="myModalLabel">Hapus Data User</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				</div>
 				<div class="modal-body">
-					<strong>Are You Sure To Delete This Data?</strong>
+					<strong>Apakah anda yakin untuk menghapus data ini?</strong>
 				</div>
 				<div class="modal-footer">
-					<input type="hidden" name="product_id" class="form-control product_id2" required>
+					<input type="hidden" name="id_user" class="form-control" id ="id_user_delete" required>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 					<button type="submit" class="btn btn-success">Delete</button>
 				</div>
@@ -113,25 +226,3 @@
 		</div>
 	</div>
 </form>
-
-<script type ="module">
-    $(document).ready(function(){
-			//showing data to modal for edit record
-      $('#mytable').on('click','.edit',function(){
-        var product_id = $(this).data('id');
-        var product_name = $(this).data('product_name');
-        var product_price = $(this).data('product_price');
-        $('#EditModal').modal('show');
-        $('.product_name').val(product_name);
-        $('.price').val(product_price);
-        $('.product_id').val(product_id);
-      });
-			//showing modal for delete record
-			$('#mytable').on('click','.delete',function(){
-        var product_id = $(this).data('id');
-        $('#DeleteModal').modal('show');
-        $('.product_id2').val(product_id);
-      });
-
-    });
-</script>
