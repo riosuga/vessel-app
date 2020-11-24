@@ -77,7 +77,6 @@ const doesFileExist = (filePath) => {
 
 async function generateReport(kode_data){
 	try {
-
 		model.getData(kode_data , async function(err, data){
 			// console.log(data.result)
 
@@ -125,7 +124,10 @@ const printPdf = async () => {
   await page.goto('http://localhost:8000/report', { waitUntil: 'networkidle0' });
   /* 3- Take a snapshot of the PDF */
   const pdf = await page.pdf({
-    format: 'A4',
+    displayHeaderFooter: true,
+    headerTemplate: '<h1>Example header</h1>',
+    footerTemplate: '<span style="font-size: 30px; width: 50px; height: 50px; background-color: red; color:black; margin: 20px;">Footer</span>',
+    format: 'A3',
     margin: {
       top: '20px',
       right: '20px',
