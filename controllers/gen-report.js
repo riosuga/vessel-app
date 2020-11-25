@@ -60,6 +60,12 @@ const createHtml = (table) => `
       </style>
     </head>
     <body>
+    <table width="100%">
+      <tr>
+      <td align="center" style ="background: #FFF"><img style="display:block; vertical-align: bottom;" src="/static/image/logo5.jpg" width="100%"></td>
+      </tr>
+    </table>
+    <hr>
       ${table}
     </body>
   </html>
@@ -74,13 +80,58 @@ const doesFileExist = (filePath) => {
 	}
 };
 
+const printPdf = async () => {
+  console.log('Starting: Generating PDF Process, Kindly wait ..');
+  /** Launch a headleass browser */
+  const browser = await puppeteer.launch();
+  /* 1- Ccreate a newPage() object. It is created in default browser context. */
+  const page = await browser.newPage();
+  /* 2- Will open our generated `.html` file in the new Page instance. */
+  await page.goto('http://localhost:8000/gen_html', { waitUntil: 'networkidle0' });
+  /* 3- Take a snapshot of the PDF */
+  // const pdf = await page.pdf({
+  //   displayHeaderFooter: true,
+  //   headerTemplate: `<table width="100%">
+  //                    <tr>
+  //                      <td width="25" align="center"><img src="http://localhost:8000/static/image/logo3.jpg" width="60%"></td>
+  //                      <td width="50" align="center"><h1>Si-MOCA</h1><br><h2>Jakarta</h2></td>
+  //                    </tr>
+  //                    </table>`,
+  //   footerTemplate: '<span style="font-size: 30px; width: 50px; height: 50px; background-color: red; color:black; margin: 20px;">Footer</span>',
+  //   format: 'A3',
+  //   margin: {
+  //     top: '100px',
+  //     bottom: '200px',
+  //     right: '30px',
+  //     left: '30px',
+  //   }
+  // });
 
+  const pdf = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+    margin: {
+      top: '100px',
+      bottom: '200px',
+      right: '30px',
+      left: '30px',
+    }
+  });
+
+  /* 4- Cleanup: close browser. */
+  await browser.close();
+  console.log('Ending: Generating PDF Process');
+  return pdf;
+};
+
+
+//untuk test
 async function generateReport(kode_data){
-	try {
-		model.getData(kode_data , async function(err, data){
-			// console.log(data.result)
+  try {
+    model.getData(kode_data , async function(err, data){
+      // console.log(data.result)
 
-			if(data.result.length > 0){
+      if(data.result.length > 0){
 
         if (doesFileExist(buildPathHtml)) {
           console.log('Deleting old build file');
@@ -107,39 +158,18 @@ async function generateReport(kode_data){
       }else{
         console.log('Data Kosong Bero');
       }
-			
-		})
-	} catch (error) {
-		console.log('Error generating table', error);
-	}
+      
+    })
+  } catch (error) {
+    console.log('Error generating table', error);
+  }
 } 
 
-const printPdf = async () => {
-  console.log('Starting: Generating PDF Process, Kindly wait ..');
-  /** Launch a headleass browser */
-  const browser = await puppeteer.launch();
-  /* 1- Ccreate a newPage() object. It is created in default browser context. */
-  const page = await browser.newPage();
-  /* 2- Will open our generated `.html` file in the new Page instance. */
-  await page.goto('http://localhost:8000/report', { waitUntil: 'networkidle0' });
-  /* 3- Take a snapshot of the PDF */
-  const pdf = await page.pdf({
-    displayHeaderFooter: true,
-    headerTemplate: '<h1>Example header</h1>',
-    footerTemplate: '<span style="font-size: 30px; width: 50px; height: 50px; background-color: red; color:black; margin: 20px;">Footer</span>',
-    format: 'A3',
-    margin: {
-      top: '20px',
-      right: '20px',
-      bottom: '20px',
-      left: '20px'
-    }
-  });
-  /* 4- Cleanup: close browser. */
-  await browser.close();
-  console.log('Ending: Generating PDF Process');
-  return pdf;
-};
-
-
 generateReport('02');
+// yang beneran
+
+
+
+
+
+
