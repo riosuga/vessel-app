@@ -34,10 +34,19 @@ exports.logout = (req, res, next) => {
 }
 
 exports.get_login =(req, res, next)=>{
-    let hbs = require('hbs');
-    let fs = require('fs');
-    hbs.registerPartial('content', fs.readFileSync( './views/layout/home.html', 'utf8'));
-    res.render('login')
+
+    if(typeof req.user !== 'undefined'){
+        let data_user = JSON.parse(JSON.stringify(req.user))
+        if(data_user[0]['nama_pj'] != ''){
+            console.log('masuk sini')
+            res.redirect('/main_module')
+        }
+    }else{
+        let hbs = require('hbs');
+        let fs = require('fs');
+        hbs.registerPartial('content', fs.readFileSync( './views/layout/home.html', 'utf8'));
+        res.render('login')
+    }
 }
 
 exports.daftar = (req, res, next)=>{
