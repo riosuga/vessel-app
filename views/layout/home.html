@@ -1,56 +1,234 @@
 <div class="right_col" role="main">
   <!-- top tiles -->
   <!-- <div class="row" style="display: inline-block;" > -->
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="tile_count">
-        <div class="col-md-3 col-sm-3  tile_stats_count">
-          <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
-          <div class="count">0</div>
-          <!-- <span class="count_bottom"><i class="green">4% </i> From last Week</span> -->
-        </div>
-        <div class="col-md-3 col-sm-3  tile_stats_count">
-          <span class="count_top"><i class="fa fa-clock-o"></i>Total Data Jumlah Kapal</span>
-          <div class="count green">0</div>
-          <!-- <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span> -->
-        </div>
-        <div class="col-md-3 col-sm-3  tile_stats_count">
-          <span class="count_top"><i class="fa fa-user"></i> Total Data Jumlah Kapal Dalam Negeri</span>
-          <div class="count">0</div>
-          <!-- <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span> -->
-        </div>
-        <div class="col-md-3 col-sm-3  tile_stats_count">
-          <span class="count_top"><i class="fa fa-user"></i> Total Data Jumlah Kapal Luar Negeri</span>
-          <div class="count green">0</div>
-          <!-- <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span> -->
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- /top tiles -->
-
-  <div class="row">
-    <div class="col-md-12 col-sm-12 ">
-      <div class="dashboard_graph">
-
-        <div class="row x_title">
-          <div class="col-md-12">
-            <h3>Jumlah Kapal</h3>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="tile_count">
+          <div class="col-md-3 col-sm-3  tile_stats_count">
+            <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
+            <div class="count" id ="jml1">0</div>
+            <!-- <span class="count_bottom"><i class="green">4% </i> From last Week</span> -->
           </div>
-          <!-- <div class="col-md-6">
-            <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
-              <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-              <span>December 30, 2014 - January 28, 2015</span> <b class="caret"></b>
-            </div>
-          </div> -->
+          <div class="col-md-3 col-sm-3  tile_stats_count">
+            <span class="count_top"><i class="fa fa-clock-o"></i>Total Data Jumlah Kapal</span>
+            <div class="count" id ="jml2" style ="color : #203347;">0</div>
+            <!-- <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span> -->
+          </div>
+          <div class="col-md-3 col-sm-3  tile_stats_count">
+            <span class="count_top"><i class="fa fa-user"></i> Total Data Jumlah Kapal Dalam Negeri</span>
+            <div class="count" id ="jml3">0</div>
+            <!-- <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span> -->
+          </div>
+          <div class="col-md-3 col-sm-3  tile_stats_count">
+            <span class="count_top"><i class="fa fa-user"></i> Total Data Jumlah Kapal Luar Negeri</span>
+            <div class="count" style ="color : #203347;" id ="jml4">0</div>
+            <!-- <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span> -->
+          </div>
         </div>
-
-        <div class="col-md-12 col-sm-12 ">
-          
-        </div>
-
-        <div class="clearfix"></div>
       </div>
     </div>
+    <!-- /top tiles -->
 
+    <div class="row">
+      <div class="col-lg-12 col-sm-12 ">
+        <div class="col-lg-6">
+            <canvas id="dashboardCountJmlKapalTujuan"></canvas>
+        </div>
+        <div class="col-lg-6">
+          <canvas id="dashboardCountJmlJenisKapal"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-12 col-sm-12 ">
+        <div class="col-lg-6">
+          <canvas id="dashboardCountJmlKapalTerdekat"></canvas>
+        </div>
+        <div class="col-lg-6">
+          <canvas id="dashboardCountJmlKapalBendera"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
+
+<script type="module">
+    $.ajax({
+      url: "/main_module/dashboardCountJmlKapalTujuan",
+      method: "POST",
+      success: function(data) {
+        console.log(data);
+        var label = [];
+        var value = [];
+        for (var i in data) {
+          label.push(data[i].tujuan);
+          value.push(data[i].jml_kapal);
+        }
+        var ctx = document.getElementById('dashboardCountJmlKapalTujuan').getContext('2d');
+        var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: label,
+            datasets: [{
+              label: 'Dashboard Jumlah Kapal Berdasarkan Tujuan',
+              backgroundColor: 'rgb(42, 63, 84)',
+              borderColor: 'rgb(255, 255, 255)',
+              data: value
+            }]
+          },
+          options: {}
+        });
+      }
+    });
+
+    $.ajax({
+      url: "/main_module/dashboardCountJmlJenisKapal",
+      method: "POST",
+      success: function(data) {
+        console.log(data);
+        var label = [];
+        var value = [];
+        for (var i in data) {
+          label.push(data[i].jenis_kapal);
+          value.push(data[i].jml_kapal);
+        }
+        var ctx = document.getElementById('dashboardCountJmlJenisKapal').getContext('2d');
+        var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: label,
+            datasets: [{
+              label: 'Dashboard Jumlah Kapal Berdasarkan Jenis Kapal',
+              backgroundColor: 'rgb(42, 63, 84)',
+              borderColor: 'rgb(255, 255, 255)',
+              data: value
+            }]
+          },
+          options: {}
+        });
+      }
+    });
+
+    $.ajax({
+      url: "/main_module/dashboardCountJmlKapalTerdekat",
+      method: "POST",
+      success: function(data) {
+        console.log(data);
+        var label = [];
+        var value = [];
+        for (var i in data) {
+          label.push(data[i].nama_pelabuhan);
+          value.push(data[i].jml_kapal);
+        }
+        var ctx = document.getElementById('dashboardCountJmlKapalTerdekat').getContext('2d');
+        var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: label,
+            datasets: [{
+              label: 'Dashboard Jumlah Kapal Berdasarkan Pelabuhan Terdekat',
+              backgroundColor: 'rgb(42, 63, 84)',
+              borderColor: 'rgb(255, 255, 255)',
+              data: value
+            }]
+          },
+          options: {}
+        });
+      }
+    });
+
+    $.ajax({
+      url: "/main_module/dashboardCountJmlKapalBendera",
+      method: "POST",
+      success: function(data) {
+        console.log(data);
+        var label = [];
+        var value = [];
+        for (var i in data) {
+          label.push(data[i].bendera_kapal);
+          value.push(data[i].jml_kapal);
+        }
+        var ctx = document.getElementById('dashboardCountJmlKapalBendera').getContext('2d');
+        var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: label,
+            datasets: [{
+              label: 'Dashboard Jumlah Kapal Berdasarkan Bendera Kapal',
+              backgroundColor: 'rgb(42, 63, 84)',
+              borderColor: 'rgb(255, 255, 255)',
+              data: value
+            }]
+          },
+          options: {}
+        });
+      }
+    });
+
+    $.ajax({
+      url: "/main_module/dashboardCountJmlKapalBendera",
+      method: "POST",
+      success: function(data) {
+        console.log(data);
+        var label = [];
+        var value = [];
+        for (var i in data) {
+          label.push(data[i].bendera_kapal);
+          value.push(data[i].jml_kapal);
+        }
+        var ctx = document.getElementById('dashboardCountJmlKapalBendera').getContext('2d');
+        var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: label,
+            datasets: [{
+              label: 'Dashboard Jumlah Kapal Berdasarkan Bendera Kapal',
+              backgroundColor: 'rgb(42, 63, 84)',
+              borderColor: 'rgb(255, 255, 255)',
+              data: value
+            }]
+          },
+          options: {}
+        });
+      }
+    });
+
+
+    $.ajax({
+      url: "/main_module/dashboardCountJmlKapalBendera",
+      method: "POST",
+      success: function(data) {
+        console.log(data);
+        var label = [];
+        var value = [];
+        for (var i in data) {
+          label.push(data[i].bendera_kapal);
+          value.push(data[i].jml_kapal);
+        }
+        var ctx = document.getElementById('dashboardCountJmlKapalBendera').getContext('2d');
+        var chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: label,
+            datasets: [{
+              label: 'Dashboard Jumlah Kapal Berdasarkan Bendera Kapal',
+              backgroundColor: 'rgb(42, 63, 84)',
+              borderColor: 'rgb(255, 255, 255)',
+              data: value
+            }]
+          },
+          options: {}
+        });
+      }
+    });
+
+
+  $.ajax({
+      url: "/main_module/dashboardCount",
+      method: "POST",
+      success: function(data) {
+        $('#jml1').html(data[0].jml_user);
+        $('#jml2').html(data[0].jml_kapal);
+        $('#jml3').html(data[0].jml_kapal_indonesia);
+        $('#jml4').html(data[0].jml_kapal_asing);
+      }
+    });
+
+</script>

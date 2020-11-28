@@ -30,8 +30,14 @@ exports.daftar = function(req,res){
     })
 }
 
-exports.getListUser = async function(res){
-  let sql = "SELECT * FROM tb_user";
+exports.getListUser = async function(res, sess){
+  if(sess['role_user'] != '03'){
+    let sql = "SELECT * FROM tb_user";
+  }else{
+    let sql = "SELECT * FROM tb_user where id_user = '"+sess['id_user']+"'";
+  }     
+
+
   let ret_val = conn.query(sql, (err, results) => {
     if(err) throw err;
     res.send(results)

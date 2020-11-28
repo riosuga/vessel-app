@@ -18,4 +18,12 @@ router.post("/getDataKapalByType", main_modules.getDataKapalByType);
 router.post("/getKapalByNearPelabuhan", main_modules.getKapalByNearPelabuhan);
 router.post("/trackingKapal", main_modules.trackingKapal);
 
+
+//library dashboard
+router.post("/dashboardCount", main_modules.dashboardCount);
+router.post("/dashboardCountJmlKapalTujuan", main_modules.dashboardCountJmlKapalTujuan);
+router.post("/dashboardCountJmlKapalTerdekat", main_modules.dashboardCountJmlKapalTerdekat);
+router.post("/dashboardCountJmlKapalBendera", main_modules.dashboardCountJmlKapalBendera);
+router.post("/dashboardCountJmlJenisKapal", main_modules.dashboardCountJmlJenisKapal);
+
 module.exports = router;

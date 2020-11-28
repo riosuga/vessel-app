@@ -30,7 +30,7 @@ router.post('/tujuan/delete_reference', reference.deleteTujuan)
 //===================================================== Pemilik Kapal =================================================
 router.get('/pemilik_kapal/', reference.pemilik_kapal)
 router.post('/pemilik_kapal/add_reference', reference.addPemilik_kapal)
-router.post('/pemilk_kapal/update_reference', reference.updatePemilik_kapal)
+router.post('/pemilik_kapal/update_reference', reference.updatePemilik_kapal)
 router.post('/pemilik_kapal/delete_reference', reference.deletePemilik_kapal)
 
 module.exports = router;

@@ -89,3 +89,26 @@ exports.trackingKapal = function(req,res){
       console.log(err)
     })
 }
+
+//module dashboard
+exports.dashboardCount = function(req,res){
+  model.dashboardCount(res)
+}
+
+exports.dashboardCountJmlKapalTujuan = function(req,res){
+  model.dashboardCountJmlKapalTujuan(res)
+}
+
+exports.dashboardCountJmlKapalTerdekat = function(req,res){
+  model.dashboardCountJmlKapalTerdekat(res)
+}
+
+
+exports.dashboardCountJmlKapalBendera = function(req,res){
+  model.dashboardCountJmlKapalBendera(res)
+}
+
+
+exports.dashboardCountJmlJenisKapal = function(req,res){
+  model.dashboardCountJmlJenisKapal(res)
+}

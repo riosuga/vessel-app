@@ -3,7 +3,6 @@ const fs = require('fs');
 const util = require('../util/util')
 const model = require('../models/m_reference')
 
-
 exports.reference = function(req, res){
 	let sess = util.writeSessionOrang(req,res) 
 	hbs.registerPartial('content', fs.readFileSync( './views/layout/reference.html', 'utf8'));
@@ -167,12 +166,20 @@ exports.deleteTujuan = function(req,res){
 //===================================================== Pemilik Kapal =======================================================
 exports.pemilik_kapal = function(req, res){
 	let sess = util.writeSessionOrang(req,res) 
+	let isUser = true
+
+	if(sess['role_user'] == '01'){
+		isUser = false
+	}else{
+		isUser = true
+	}
+
 	hbs.registerPartial('content', fs.readFileSync( './views/layout/pemilik_kapal.html', 'utf8'));
 	model.getListPemilik_kapal(function(err, data){
 		if(err){
-			res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: null})
+			res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: null, isUser : isUser})
 		}else{
-			res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: data})
+			res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: data, isUser : isUser})
 		}
 	})
 }

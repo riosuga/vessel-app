@@ -139,6 +139,31 @@ function showDelete(id_user){
 }
 
 
+function showAddReferencePemiliKapal(){
+	$('#EditModal').modal('hide');
+	$('#DeleteModal').modal('hide');
+
+	$('input[name=id_pemilik_kapal]').val('');
+	$('#myModalAdd').modal('show');
+}
+
+
+function showUpdateReferencePemilikKapal(id_pemilik_kapal){
+	$('#myModalAdd').modal('hide');
+	$('#DeleteModal').modal('hide');
+	$('#myModalDetail').modal('hide');
+	$('#EditModal').modal('show');
+
+	$('input[name=id_pemilik_kapal]').val(id_pemilik_kapal);
+}
+
+function showDeleteReferencePemilikKapal(id_pemilik_kapal){
+	$('#myModalAdd').modal('hide');
+	$('#EditModal').modal('hide');
+	$('#myModalDetail').modal('hide');
+	$('input[name=id_pemilik_kapal]').val(id_pemilik_kapal);
+	$('#DeleteModal').modal('show');
+}
 
 $(document).ready(function() {
     $('.select2').select2();

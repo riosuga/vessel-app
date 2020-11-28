@@ -4,7 +4,7 @@ const fs = require('fs')
 
 function renderPageError(req,res, sess, message){
   hbs.registerPartial('content', fs.readFileSync( './views/error_page/505Page.html', 'utf8'));
-  res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], message : message, url : '/reference/'})
+  res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], message : message, url : '/reference/pemilik_kapal/'})
 }
 
 
@@ -291,7 +291,7 @@ exports.deleteTujuan = async function(req,res,sess){
 }
 //===================================================== Pemilik Kapal =================================================
 exports.getListPemilik_kapal = async function(callback){
-  let sql = "SELECT * FROM tr_pemilik_kapal a join tb_user b on a.id_user = b.id_user";
+  let sql = "SELECT * FROM tr_pemilik_kapal a join tb_user b on a.id_user = b.id_user join tb_data_kapal c on a.id_kapal = c.id_kapal";
   conn.query(sql, (err, results) => {
       if(err) throw callback(err,null);
         callback(null,results);
@@ -300,40 +300,69 @@ exports.getListPemilik_kapal = async function(callback){
 
 exports.addPemilik_kapal = async function(req,res,sess){
   var data_referensi = req.body
-  await conn.query("SELECT * FROM tr_pemilik_kapal WHERE id_kapal = ?", 
-    [data_referensi.id_kapal], function(err, rows, fields) {
-      if(err){
-        renderPageError(req,res,sess,'Mohon maaf, data refrensi sudah ada')
-      }else if (rows.length <= 0) {
-        conn.query("INSERT INTO tr_pemilik_kapal(id_user, id_kapal) values (?, ?) ", 
-          [data_referensi.id_user, data_referensi.id_kapal], 
-          function(err2, rows2, fields2) {
-            if(err2){
-              renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengisian data referensi')
-            }else{
-              res.redirect('/reference/pemilik_kapal/')
-            }
-          })
-      }else{
-        renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengecekan data referensi')
-      } 
-    })
+  await conn.query("SELECT * FROM tb_data_kapal where MMSI like ?", ['%'+data_referensi.mmsi+'%'], function(err, rows, fields){
+    if(err){
+      renderPageError(req,res,sess,'Mohon maaf, terjadi kesalahan dalam pengecekan data kapal')
+    }else if(rows.length <= 0){
+      renderPageError(req,res,sess,'Mohon maaf, Data kapal berdasarkan MMSI anda, tidak ditemukan')
+    }else{
+      let id_kapal = rows[0].id_kapal
+      conn.query("SELECT * FROM tr_pemilik_kapal where id_kapal = ?", [id_kapal], function(err2, rows2, fields2){
+          if(err2){
+            console.log(err2)
+            renderPageError(req,res,sess,'Mohon maaf, terjadi kesalahan dalam pengecekan data pemilik kapal')
+          }else if(rows2.length <= 0){
+              conn.query("INSERT INTO tr_pemilik_kapal(id_kapal, id_user) values (?, ?) ", 
+              [id_kapal, sess['id_user']], 
+              function(err3, rows3, fields3) {
+                if(err3){
+                  console.log(err3)
+                  renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengisian data referensi')
+                }else{
+                  res.redirect('/reference/pemilik_kapal/')
+                }
+              })
+          }else{
+            renderPageError(req,res,sess,'Mohon maaf, Data kapal tersebut sudah dimiliki user lain')
+          }
+      })
+    }
+  })
 }
 
-exports.updateNegara = async function(req,res,sess){
+exports.updatePemilik_kapal = async function(req,res,sess){
   var data_referensi = req.body
-  conn.query("UPDATE tr_pemilik_kapal SET id_user =?, id_kapal = ? where id_pemilik_kapal = ?", 
-    [data_referensi.id_user, data_referensi.id_kapal, data_referensi.id_pemilik_kapal], 
-    function(err2, rows2, fields2) {
-      if(err2){
-        renderPageError(req,res,sess,'Mohon maaf, Gagal Update data Referensi')
-      }else{
-        res.redirect('/reference/pemilik_kapal/')
-      }
-    })
+  await conn.query("SELECT * FROM tb_data_kapal where MMSI like ?", ['%'+data_referensi.mmsi+'%'], function(err, rows, fields){
+    if(err){
+      renderPageError(req,res,sess,'Mohon maaf, terjadi kesalahan dalam pengecekan data kapal')
+    }else if(rows.length <= 0){
+      renderPageError(req,res,sess,'Mohon maaf, Data kapal berdasarkan MMSI anda, tidak ditemukan')
+    }else{
+      let id_kapal = rows[0].id_kapal
+      conn.query("SELECT * FROM tr_pemilik_kapal where id_kapal = ?", [id_kapal], function(err2, rows2, fields2){
+          if(err2){
+            console.log(err2)
+            renderPageError(req,res,sess,'Mohon maaf, terjadi kesalahan dalam pengecekan data pemilik kapal')
+          }else if(rows2.length <= 0){
+              conn.query("UPDATE tr_pemilik_kapal SET id_kapal =?, id_user =? where id_pemilik_kapal = ?", 
+              [id_kapal, sess['id_user'], data_referensi.id_pemilik_kapal], 
+              function(err3, rows3, fields3) {
+                if(err3){
+                  console.log(err3)
+                  renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengisian data referensi')
+                }else{
+                  res.redirect('/reference/pemilik_kapal/')
+                }
+              })
+          }else{
+            renderPageError(req,res,sess,'Mohon maaf, Data kapal tersebut sudah dimiliki user lain')
+          }
+      })
+    }
+  })
 }
 
-exports.deleteNegara = async function(req,res,sess){
+exports.deletePemilik_kapal = async function(req,res,sess){
   var data_referensi = req.body
   conn.query("DELETE FROM tr_pemilik_kapal WHERE id_pemilik_kapal = ?", 
     [data_referensi.id_pemilik_kapal],

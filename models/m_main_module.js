@@ -98,3 +98,50 @@ exports.getKapalByTujuan = async function(res, tujuan){
       res.send(results)
     })
 }
+
+exports.dashboardCount = function(res){
+  let sql = `select 
+            (select count(*) from tb_user) as jml_user,
+            (select count(*) from tb_data_kapal ) as jml_kapal,
+            (select count(*) from tb_data_kapal_detail where bendera_kapal = 'Indonesia (Republic of)') as jml_kapal_indonesia,
+            (select count(*) from tb_data_kapal_detail where bendera_kapal != 'Indonesia (Republic of)') as jml_kapal_asing`;
+  let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      res.send(results)
+    })
+}
+
+exports.dashboardCountJmlKapalTujuan = function(res){
+  let sql = `select count(*) as jml_kapal, case when tujuan ='' then 'Tidak ditemukan' else tujuan end as tujuan from tb_data_kapal_detail group by tujuan `;
+  let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      res.send(results)
+    })
+}
+
+exports.dashboardCountJmlJenisKapal = function(res){
+  let sql = `select count(*) as jml_kapal, jenis_kapal from tb_data_kapal group by jenis_kapal `;
+  let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      res.send(results)
+    })
+}
+
+exports.dashboardCountJmlKapalTerdekat = function(res){
+  let sql = `select count(*) as jml_kapal, b.nama_pelabuhan from tb_data_kapal a
+            join tr_pelabuhan b on a.id_pelabuhan_terdekat = b.id_pelabuhan
+            group by b.nama_pelabuhan `;
+  let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      res.send(results)
+    })
+}
+
+
+exports.dashboardCountJmlKapalBendera = function(res){
+  let sql = `select count(*) as jml_kapal, bendera_kapal from tb_data_kapal_detail group by bendera_kapal `;
+  let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      res.send(results)
+    })
+}

@@ -1,28 +1,29 @@
 <div class="right_col" role="main">
 	<div class="row">
 		<div class="col-md-12 col-sm-12 ">
-			<button class="btn btn-success" onclick="showAddReference()">Tambah Referensi</button>
+			<!-- <button class="btn btn-success" onclick="showAddReference()">Tambah Referensi</button> -->
 			<table class="table table-striped" id="mytable">
 				<thead>
 					<tr>
-						<th>Kode Grup</th>
-						<th>Kode</th>
-						<th>Uraian</th>
-						<th>Keterangan</th>
-						<th>Aksi</th>
+						<th>Nama Pelabuhan</th>
+						<th>Kode Pelabuhan</th>
+						<th>Nama Kabupaten Kota</th>
+						<th>Langitude</th>
+						<th>Longitude</th>
 					</tr>
 				</thead>
 				<tbody>
 					{{#each results}}
 					<tr>
-			          <td>{{ kd_grup }}</td>
-			          <td>{{ kode }}</td>
-			          <td>{{ uraian }}</td>
-			          <td>{{ keterangan }}</td>
-			          <td>
+			          <td>{{ nama_pelabuhan }}</td>
+			          <td>{{ kd_pelabuhan }}</td>
+			          <td>{{ nama_kabkota }}</td>
+			          <td>{{ latitude }}</td>
+			          <td>{{ longitude }}</td>
+			          <!-- <td>
 			            <a href="javascript:void(0);" class="btn btn-sm btn-warning" onclick ="showUpdateReference('{{ kd_grup }}','{{ kode }}')">Edit Referensi</a>
 			            <a href="javascript:void(0);" class="btn btn-sm btn-danger" onclick ="showDeleteReference('{{ kd_grup }}', '{{ kode }}')">Hapus Referensi</a>
-			          </td>
+			          </td> -->
 			        </tr>
 					{{/each}}
 				</tbody>
