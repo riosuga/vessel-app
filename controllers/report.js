@@ -85,7 +85,7 @@ const doesFileExist = (filePath) => {
 const printPdf = async () => {
   console.log('Starting: Generating PDF Process, Kindly wait ..');
   /** Launch a headleass browser */
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({headless: true, args:['--no-sandbox']});
   /* 1- Ccreate a newPage() object. It is created in default browser context. */
   const page = await browser.newPage();
   /* 2- Will open our generated `.html` file in the new Page instance. */
