@@ -309,14 +309,14 @@ exports.addPemilik_kapal = async function(req,res,sess){
       let id_kapal = rows[0].id_kapal
       conn.query("SELECT * FROM tr_pemilik_kapal where id_kapal = ?", [id_kapal], function(err2, rows2, fields2){
           if(err2){
-            console.log(err2)
+            // console.log(err2)
             renderPageError(req,res,sess,'Mohon maaf, terjadi kesalahan dalam pengecekan data pemilik kapal')
           }else if(rows2.length <= 0){
               conn.query("INSERT INTO tr_pemilik_kapal(id_kapal, id_user) values (?, ?) ", 
               [id_kapal, sess['id_user']], 
               function(err3, rows3, fields3) {
                 if(err3){
-                  console.log(err3)
+                  // console.log(err3)
                   renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengisian data referensi')
                 }else{
                   res.redirect('/reference/pemilik_kapal/')
@@ -341,14 +341,14 @@ exports.updatePemilik_kapal = async function(req,res,sess){
       let id_kapal = rows[0].id_kapal
       conn.query("SELECT * FROM tr_pemilik_kapal where id_kapal = ?", [id_kapal], function(err2, rows2, fields2){
           if(err2){
-            console.log(err2)
+            // console.log(err2)
             renderPageError(req,res,sess,'Mohon maaf, terjadi kesalahan dalam pengecekan data pemilik kapal')
           }else if(rows2.length <= 0){
               conn.query("UPDATE tr_pemilik_kapal SET id_kapal =?, id_user =? where id_pemilik_kapal = ?", 
               [id_kapal, sess['id_user'], data_referensi.id_pemilik_kapal], 
               function(err3, rows3, fields3) {
                 if(err3){
-                  console.log(err3)
+                  // console.log(err3)
                   renderPageError(req,res,sess,'Mohon maaf, Terdapat error pada pengisian data referensi')
                 }else{
                   res.redirect('/reference/pemilik_kapal/')
