@@ -1,7 +1,9 @@
 <div class="right_col" role="main">
 	<div class="row">
 		<div class="col-md-12 col-sm-12 ">
+			{{#if isAdmin}}
 			<button class="btn btn-success" onclick="showAddUser()">Tambah User</button>
+			{{/if}}
 			<table class="table table-striped" id="mytable">
 				<thead>
 					<tr>

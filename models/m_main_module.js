@@ -14,7 +14,7 @@ exports.searchKapal = async function(res, mmsi){
   		if(err) throw err;
   		  if(results === undefined || results.length == 0){
           sql2 = "SELECT *, longitude as last_longitude, latitude as last_latitude FROM tr_pelabuhan where kd_pelabuhan = '"+mmsi+"'";
-          console.log(sql2)
+          // console.log(sql2)
           conn.query(sql2, (err2, results2) => {
              if(err2) throw err2;
              if(results2 === undefined || results2.length == 0){
@@ -32,7 +32,7 @@ exports.searchKapal = async function(res, mmsi){
 
 exports.getKapalByType = async function(res, type_kapal){
 	let sql = "SELECT * FROM tb_data_kapal a left join tb_data_kapal_detail b on a.id_kapal = b.id_kapal where a.jenis_kapal ='"+type_kapal+"'";
-	console.log(sql);	
+	// console.log(sql);	
 	let ret_val = conn.query(sql, (err, results) => {
   		if(err) throw err;
   		res.send(results)

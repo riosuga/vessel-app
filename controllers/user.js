@@ -11,16 +11,22 @@ exports.user = function(req, res){
 		if(err){
 			res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: null})
 		}else{
-			res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: data})
+			if(sess['role_user'] != '03'){
+				res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: data, isAdmin : true})
+			}else{
+				res.render('main', {nama_orang : sess['nama_pj'], role_user : sess['role_user'], results: data, isAdmin : false})
+			}
 		}
-	})
+	},sess)
 }
 
 exports.getListUser = function(req, res){   
- 	model.getListUser(res);
+	let sess = util.writeSessionOrang(req,res) 
+ 	model.getListUser(res, sess);
 }
 
 exports.getDetailUser = function(req,res){
+	let sess = util.writeSessionOrang(req,res) 
 	model.getDetailUser(req,res);
 }
 

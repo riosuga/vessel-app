@@ -19,13 +19,16 @@ exports.daftar = function(req,res){
           [data_daftar.username, data_daftar.email, data_daftar.password, data_daftar.nama_pj, data_daftar.perusahaan, data_daftar.alamat_perusahaan, data_daftar.contact], 
           function(err2, rows2, fields2) {
             if(err2){
-              res.send({kode : '500', message: 'Ada masalah dalam pendaftaran teknis harap hubungi tim teknis'})
+              // res.send({kode : '500', message: 'Ada masalah dalam pendaftaran teknis harap hubungi tim teknis'})
+              renderPageError(req,res,sess,'Mohon maaf, gagal dalam mendaftarkan user')
             }else{
-              res.send({kode : '200', message: 'Selamat akun anda berhasil didaftarkan'})
+              // res.send({kode : '200', message: 'Selamat akun anda berhasil didaftarkan'})
+              res.redirect('/auth/login/')
             }
           })
       }else{
-        res.send({kode : '500', message: 'Username/Email telah didaftarkan silahkan coba kembali'})
+        // res.send({kode : '500', message: 'Username/Email telah didaftarkan silahkan coba kembali'})
+        renderPageError(req,res,sess,'Username/Email telah didaftarkan silahkan coba kembali')
       } 
     })
 }
@@ -33,23 +36,37 @@ exports.daftar = function(req,res){
 exports.getListUser = async function(res, sess){
   if(sess['role_user'] != '03'){
     let sql = "SELECT * FROM tb_user";
+    let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      // console.log(sql)
+      res.send(results)
+    })
   }else{
     let sql = "SELECT * FROM tb_user where id_user = '"+sess['id_user']+"'";
-  }     
-
-
-  let ret_val = conn.query(sql, (err, results) => {
-    if(err) throw err;
-    res.send(results)
-  })
+      let ret_val = conn.query(sql, (err, results) => {
+      if(err) throw err;
+      // console.log(sql)
+      res.send(results)
+    })
+  }    
 }
 
-exports.getListUser_callback = async function(callback){
-  let sql = "SELECT * FROM tb_user";
-  conn.query(sql, (err, results) => {
+exports.getListUser_callback = async function(callback, sess){
+  if(sess['role_user'] != '03'){
+    let sql = "SELECT * FROM tb_user";
+    conn.query(sql, (err, results) => {
       if(err) throw callback(err,null);
         callback(null,results);
     })
+  }else{
+    let sql = "SELECT * FROM tb_user where id_user = '"+sess['id_user']+"'";
+    conn.query(sql, (err, results) => {
+      if(err) throw callback(err,null);
+        callback(null,results);
+    })
+  }
+
+  
 }
 
 exports.getDetailUser = async function(req, res){
